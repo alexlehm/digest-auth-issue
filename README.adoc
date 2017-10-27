@@ -1,32 +1,22 @@
-= Vert.x Simplest Maven project
+= digest auth issue reproducer
 
-This project shows a very simple hello world Vert.x project using Maven, which has a simple HTTP server which
-simply returns "Hello World!" to every request.
+Please download the cli distribution from monero, we will only use monero-wallet-rpc
 
-In this example Vert.x is used embedded. I.e. we use the Vert.x APIs directly in our own classes rather than deploying
-the code in verticles.
+https://getmonero.org/downloads/
 
-You can run or debug the example in your IDE by just right clicking the main class and run as.. or debug as...
+Start the rpc server with the command
 
-The pom.xml uses the Maven shade plugin to assemble the application and all it's dependencies into a single "fat" jar.
+     ./monero-wallet-rpc --rpc-bind-port 18082 --rpc-login username:password --wallet-dir wallet
 
-To run with maven
+When accessing the rpc server with curl, the login works
 
-    mvn compile exec:java
-    
-To build a "fat jar"
+     curl -v --user username:password --digest http://localhost:18082/json_rpc
 
-    mvn package
+but when using a WebClient connection with vert.x it fails.
 
-To run the fat jar:
+The most part of the project is from Vincent from this thread https://groups.google.com/d/msg/vertx/6QIdpO3ScLw/HBXHGuttAQAJ
+I just added the necessary parameters to test it against the localhost server.
 
-    java -jar target/maven-simplest-3.3.0-SNAPSHOT-fat.jar
-
-(You can take that jar and run it anywhere there is a Java 8+ JDK. It contains all the dependencies it needs so you
-don't need to install Vert.x on the target machine).
-
-You can also run the fat jar with maven:
-
-    mvn package exec:exec@run-app
-
-Now point your browser at http://localhost:8080
+I am not able to figure out why this fails, this may be a bug in the rpc server code,
+however when running digest auth against an apache 2.4 server, the auth works
+with the vert.x code.
